@@ -3,7 +3,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 val baseUrl = "https://default-payment-gateway.com/pay/"
-
+// SDK Version
+val sdkVersion = "0.0.1"
 android {
     namespace = "com.technonext.tnextpaysdk"
     compileSdk = 36
@@ -52,4 +53,13 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+}
+tasks.register<Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(android.sourceSets["main"].java.srcDirs)
+}
+
+tasks.register<Jar>("javadocJar") {
+    archiveClassifier.set("javadoc")
+    from("$buildDir/docs/javadoc")
 }
