@@ -91,7 +91,7 @@ class TNestPaySDK private constructor(
      * Builder class for TNestPaySDK
      */
     class Builder {
-        private var merchantKey: String? = null
+        private var sessionKey: String? = null
         private var callback: PaymentCallback? = null
         private var timeoutMs: Long = Constants.WEBVIEW_TIMEOUT_MS
 
@@ -100,7 +100,7 @@ class TNestPaySDK private constructor(
          * This key will be concatenated with the base URL
          */
         fun setMerchantKey(key: String): Builder {
-            this.merchantKey = key
+            this.sessionKey = key
             return this
         }
 
@@ -127,7 +127,7 @@ class TNestPaySDK private constructor(
          * @throws IllegalArgumentException if merchant key is not set
          */
         fun build(): TNestPaySDK {
-            val key = merchantKey ?: throw IllegalArgumentException(
+            val key = sessionKey ?: throw IllegalArgumentException(
                 "Merchant key is required. Use setMerchantKey() to provide it."
             )
 
