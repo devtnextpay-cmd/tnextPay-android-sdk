@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    id("maven-publish")
+    id("signing")
 }
 val baseUrl = "https://default-payment-gateway.com/pay/"
 // SDK Version
@@ -37,6 +39,12 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
@@ -54,12 +62,72 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
-tasks.register<Jar>("sourcesJar") {
-    archiveClassifier.set("sources")
-    from(android.sourceSets["main"].java.srcDirs)
-}
 
-tasks.register<Jar>("javadocJar") {
-    archiveClassifier.set("javadoc")
-    from("$buildDir/docs/javadoc")
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+
+                groupId = "com.technonext"
+                artifactId = "tnextpaysdk"
+                version = sdkVersion
+
+                pom {
+                    name.set("TNextPay SDK")
+                    description.set("Android Payment Gateway SDK by Technonext")
+//                    url.set("https://github.com/technonext/tnextpaysdk")
+
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://opensource.org/licenses/MIT")
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id.set("technonext")
+                            name.set("Technonext Ltd")
+                            email.set("support@technonext.com")
+                        }
+                    }
+
+//                    scm {
+//                        connection.set("scm:git:git://github.com/technonext/tnextpaysdk.git")
+//                        developerConnection.set("scm:git:ssh://github.com/technonext/tnextpaysdk.git")
+//                        url.set("https://github.com/technonext/tnextpaysdk")
+//                    }
+                }
+            }
+        }
+        repositories {
+            maven {
+                name = "OSSRH"
+                url = uri(
+                    if (sdkVersion.endsWith("SNAPSHOT"))
+                        "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                    else
+                        "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                )
+
+                credentials {
+                    username = project.findProperty("ossrhUsername") as String?
+                    password = project.findProperty("ossrhPassword") as String?
+                }
+            }
+        }
+    }
 }
+signing {
+    sign(publishing.publications)
+}
+//tasks.register<Jar>("sourcesJar") {
+//    archiveClassifier.set("sources")
+//    from(android.sourceSets["main"].java.srcDirs)
+//}
+//
+//tasks.register<Jar>("javadocJar") {
+//    archiveClassifier.set("javadoc")
+//    from("$buildDir/docs/javadoc")
+//}
